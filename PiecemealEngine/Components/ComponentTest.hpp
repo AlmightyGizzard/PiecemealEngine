@@ -21,3 +21,11 @@ struct Renderable
 {
 	glm::vec3 color;
 };
+
+
+// Player input (component): series of boolean values for keypresses
+
+// Player Controller (system) takes an input component and applies forces to the 
+// given rigidbody, need to also work out mouse input and connect it to this system
+
+// vision cones (renderer) 

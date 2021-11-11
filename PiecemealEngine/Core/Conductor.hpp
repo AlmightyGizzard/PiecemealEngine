@@ -3,8 +3,10 @@
 #include "ComponentManager.hpp"
 #include "EntityManager.hpp"
 #include "SystemManager.hpp"
+#include "SDL.h"
 #include "Types.hpp"
 #include <memory>
+#include <iostream>
 
 
 class Conductor {
@@ -28,6 +30,13 @@ public:
 		systemManager->EntityDestroyed(entity);
 	}
 
+	template<typename T>
+	bool HasComponent(Entity entity) {
+		
+		auto signature = entityManager->GetSignature(entity);
+		return signature.test(componentManager->GetComponentType<T>());
+	}
+
 	// COMPONENT
 	template<typename T>
 	void RegisterComponent() {
@@ -41,10 +50,11 @@ public:
 		auto signature = entityManager->GetSignature(entity);
 		// set the corresponding component bit in the binary signature to 1. 
 		signature.set(componentManager->GetComponentType<T>(), true);
-
 		// Now that the entity has a new component, its binary signature needs to be updated,
 		// hence, we need to update the Systems in case it no longer qualifies/suddenly
 		// qualifies for certain systems.
+
+		// This bit isn't happening I don't think.
 		entityManager->SetSignature(entity, signature);
 		systemManager->EntitySignatureChanged(entity, signature);
 	}
@@ -81,6 +91,10 @@ public:
 	template<typename T>
 	void SetSystemSignature(Signature signature) {
 		systemManager->SetSignature<T>(signature);
+	}
+
+	Signature GetEntitySignature(Entity entity) {
+		return entityManager->GetSignature(entity);
 	}
 private:
 	// All coming together isn't it?

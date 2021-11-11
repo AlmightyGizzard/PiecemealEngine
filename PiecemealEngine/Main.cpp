@@ -1,4 +1,6 @@
 #pragma once
+
+
 // PiecemealEngine.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 #include <SDL.h>
@@ -7,9 +9,11 @@
 #include <random>
 
 #include "Core/Conductor.hpp"
+#include "Components/LevelGen.hpp"
 #include "Components/ComponentTest.hpp"
 #include "Systems/PhysicsSystem.hpp"
 #include "Systems/RenderSystem.hpp"
+
 
 
 const int DELTA_TIME = 60;
@@ -22,6 +26,8 @@ SDL_Window* window;
 SDL_Renderer* renderer;
 
 Conductor conductor;
+LevelGen gen;
+
 
 glm::vec3 createNewVec3(float x, float y, float z) {
     glm::vec3 result(x, y, z);
@@ -47,28 +53,34 @@ int main(int argc, char* argv[])
     conductor.Init();
 
     // Register all the components to be used:
-    conductor.RegisterComponent<Gravity>();
-    conductor.RegisterComponent<RigidBody>();
     conductor.RegisterComponent<Transform>();
     conductor.RegisterComponent<Renderable>();
+    conductor.RegisterComponent<Gravity>();
+    conductor.RegisterComponent<RigidBody>();
+    
 
     // And the systems:
     auto physicsSystem = conductor.RegisterSystem<PhysicsSystem>();
     auto renderSystem = conductor.RegisterSystem<RenderSystem>();
     
+    // Fixed a major issue - in this section, you have to define a signature and what components are NEEDED, not
+    // just all components - before the block of signature.set(s) meant that every entity had to have ALL components
+    // assigned in order for it to qualify for rendering.
     Signature signature;
-    signature.set(conductor.GetComponentType<Gravity>());
-    signature.set(conductor.GetComponentType<RigidBody>());
     signature.set(conductor.GetComponentType<Transform>());
     signature.set(conductor.GetComponentType<Renderable>());
-    conductor.SetSystemSignature<PhysicsSystem>(signature);
     conductor.SetSystemSignature<RenderSystem>(signature);
+
+
+    signature.set(conductor.GetComponentType<Gravity>());
+    signature.set(conductor.GetComponentType<RigidBody>());
+    conductor.SetSystemSignature<PhysicsSystem>(signature);
+    
     
     physicsSystem->Init();
     renderSystem->Init(renderer, window);
 
-    // lots of cubes
-    std::vector<Entity> entities(200);
+    std::vector<Entity> entities(0);
 
     // Random code for the cubes:
     std::default_random_engine generator;
@@ -80,35 +92,83 @@ int main(int argc, char* argv[])
     std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
     std::uniform_real_distribution<float> randScale(13.0f, 15.0f);
     std::uniform_real_distribution<float> randGravity(-10.0f, -1.0f);
+  
+    gen.Init(5);
+    gen.erate("Content/TestLevel.csv");
+    std::vector<Entity> le = gen.GetLevelEntities();
+    entities.insert(entities.end(), le.begin(), le.end());
 
-    float scale = randScale(generator);
 
-    
-    for (auto& entity : entities) {
-        entity = conductor.CreateEntity();
+    //// lots of cubes
+    //std::vector<Entity> entities(50);
+    //std::vector<Entity> wallBlocks(25);
 
-        Gravity g;
-        g.force = { 0.0f, randGravity(generator), 0.0f };
-        conductor.AddComponent(entity, Gravity{g});
+    //
+    //for (auto& entity : entities) {
+    //    entity = conductor.CreateEntity();
 
-        RigidBody r;
+    //    Gravity g;
+    //    g.force = { 0.0f, randGravity(generator), 0.0f };
+    //    conductor.AddComponent(entity, Gravity{g});
+
+        /*RigidBody r;
         r.acceleration = { 0.0f, 0.0f, 0.0f };
         r.velocity = { 0.0f, 0.0f, 0.0f };
-        conductor.AddComponent(entity, RigidBody{ r });
+        conductor.AddComponent(entity, RigidBody{ r });*/
 
-        Transform t;
-        t.position = { randX(generator), randY(generator) , randPosition(generator) };
-        t.rotation = { randRotation(generator) , randRotation(generator) , randRotation(generator) };
-        t.scale = { scale, scale, scale };
-        conductor.AddComponent(entity, Transform{ t });
+    //    Transform t;
+    //    t.position = { randX(generator), randY(generator) , 1 };
+    //    t.rotation = { randRotation(generator) , randRotation(generator) , randRotation(generator) };
+    //    t.scale = { scale*2, scale, scale };
+    //    conductor.AddComponent(entity, Transform{ t });
 
-        Renderable c;
-        c.color = { randColour(generator), randColour(generator), randColour(generator) };
-        conductor.AddComponent(entity, Renderable{ c });
+    //    Renderable c;
+    //    c.color = { randColour(generator), randColour(generator), randColour(generator) };
+    //    conductor.AddComponent(entity, Renderable{ c });
 
-    }
+    //}
 
-    std::cout << "Created No of Entities: " << entities.size() << std::endl;
+    //for (auto& entity : wallBlocks) {
+    //    entity = conductor.CreateEntity();
+
+    //    Gravity g;
+    //    g.force = { 0.0f, 0.0f, 0.0f };
+    //    conductor.AddComponent(entity, Gravity{ g });
+
+    //    RigidBody r;
+    //    r.acceleration = { 0.0f, 0.0f, 0.0f };
+    //    r.velocity = { 0.0f, 0.0f, 0.0f };
+    //    conductor.AddComponent(entity, RigidBody{ r });
+
+    //    Transform t;
+    //    t.position = { randX(generator), randY(generator) , 1 };
+    //    t.rotation = { randRotation(generator) , randRotation(generator) , randRotation(generator) };
+    //    t.scale = { scale, scale*1.5f, scale };
+    //    conductor.AddComponent(entity, Transform{ t });
+
+    //    Renderable c;
+    //    c.color = { 255, 255, 255 };
+    //    conductor.AddComponent(entity, Renderable{ c });
+    //}
+
+    // Try and create an entitiy of our own, to be replaced with a way to read it in via text
+    /*Entity newTest = conductor.CreateEntity();
+    Transform transform; Renderable render;
+    transform.position = { centreX, centreY, 1 };
+    transform.rotation = { 1, 1, 1 };
+    transform.scale = { scale * 5, scale * 5, scale * 5 };
+    render.color = { 255, 255, 255 };
+    conductor.AddComponent(newTest, Transform{ transform });
+    conductor.AddComponent(newTest, Renderable{ render });*/
+
+    
+    // TODO : figure out a way to get the above entity to render : for some reason entities only
+    //        render when they have a gravity+rigidbody, which they don't need.
+
+
+
+    std::cout << "Created No of Entities: " << le.size() << std::endl;
+    
 
     float dt = 0.0f;
 
@@ -133,7 +193,7 @@ int main(int argc, char* argv[])
 
         auto startTime = std::chrono::high_resolution_clock::now();
 
-        std::cout << dt << std::endl;
+        //std::cout << dt << std::endl;
         physicsSystem->Update(dt);
         renderSystem->Update();
 

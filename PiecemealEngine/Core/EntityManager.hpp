@@ -17,7 +17,7 @@ public:
 	Entity CreateEntity() {
 		assert(livingEntities < MAX_ENTITIES && "Too many Entities");
 
-		// Take an idea from the front, and use it :P
+		// Take an ID from the front, and use it :P
 		Entity id = availableEntityIDs.front();
 		availableEntityIDs.pop();
 		livingEntities++;
@@ -41,6 +41,7 @@ public:
 
 		// put this entities signature into the array. 
 		attachedSignatures[entity] = signature;
+		
 	}
 
 	Signature GetSignature(Entity entity) {

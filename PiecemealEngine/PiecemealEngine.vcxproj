@@ -84,8 +84,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\Dominic\source\repos\PiecemealEngine\PiecemealEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -140,12 +140,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Components\LevelGen.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Systems\PhysicsSystem.cpp" />
     <ClCompile Include="Systems\RenderSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Components\ComponentTest.hpp" />
+    <ClInclude Include="Components\Controller.hpp" />
+    <ClInclude Include="Components\LevelGen.hpp" />
     <ClInclude Include="Components\Transform.hpp" />
     <ClInclude Include="Core\ComponentArray.hpp" />
     <ClInclude Include="Core\ComponentManager.hpp" />
@@ -158,7 +161,9 @@
     <ClInclude Include="Systems\RenderSystem.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Content\SignatureTest.csv" />
     <None Include="packages.config" />
+    <None Include="ExtraRules.ruleset" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
