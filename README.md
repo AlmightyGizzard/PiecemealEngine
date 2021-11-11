@@ -1,4 +1,4 @@
-# PiecemealEngine
+# The Piecemeal Engine
 A Rudimentary game engine complete with a functional ECS.
 
 ### Installation
